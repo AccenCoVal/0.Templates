@@ -1,0 +1,204 @@
+---
+title: "AccenCoVal. Your Document Title"
+author: "Alessandro Galletto"
+date: "2/1/2020"
+printdate: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+    number_sections: TRUE
+    toc: TRUE
+    toc_depth: 2
+    df_print: paged
+    includes:
+      in_header: ACV.Header.html
+      after_body: ACV.Footer.html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+require(readr) || install.packages("readr")
+require(stringr) || install.packages("stringr")
+require(dplyr) || install.packages("dplyr")
+require(ggplot2) || install.packages("ggplot2")
+require(ggcorrplot) || install.packages("ggcorrplot")
+require(reshape) || install.packages("reshape")
+require(reshape2) || install.packages("reshape2")
+require(data.table) || install.packages("data.table")
+require(R.utils) || install.packages("R.utils")
+require(ggthemes) || install.packages("ggthemes")
+require(rlist) || install.packages("rlist")
+require(caret) || install.packages("caret")
+require(rpart) || install.packages("rpart")
+require(rpart.plot) || install.packages("rpart.plot")
+require(rattle) || install.packages("rattle")
+require(randomForest) || install.packages("randomForest")
+require(knitr) || install.packages("knitr")
+require(plotly) || install.packages("plotly")
+require(factoextra) || install.packages("factoextra")
+
+library(readr)
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(ggcorrplot)
+library(reshape)
+library(reshape2)
+library(data.table)
+library(R.utils)
+library(ggthemes)
+library(rlist)
+library(caret)
+library(rpart)
+library(rpart.plot)
+library(rattle)
+library(randomForest)
+library(knitr)
+library(DT)
+library(plotly)
+library(factoextra)
+```
+# EXECUTIVE SUMMARY
+
+## The Question
+Question explanation 
+
+## The Data
+Explanation of the desired data, available data and source of the data that is going to be processed. Link/reference explaining each predictor explanation.
+
+## Results
+Explanation of the answer to the question, prediction model used and accuracy obtained.
+
+## Machine Learning techniques applied
+Explanation of the techniques tried and justification of selecting the model finally used.
+
+# GETTING DATA
+Source of the data: `XXXX`
+
+Usually, read the csv with 
+- datasource <- read_delim()
+
+```{r dummy data for demo pursoses}
+datasource<-tbl_df(as.data.frame(matrix(rnorm(100), nrow=20)))
+```
+
+# EXPLORATORY DATA ANALYSIS
+### Basic visualization of the data
+```{r }
+set.seed(7)
+```
+
+15 rows of the source data randomly selected
+```{r }
+kable(sample_n(datasource,15))
+```
+Summary of the data
+```{r }
+summary(datasource)
+```
+If it makes sense, plot of histogram 
+```{r }
+hist(datasource$V1)
+```
+Show unique values to be predicted
+unique(datasource$target)
+
+### Correlation in order to decide among vector features
+Plot of correlation among predictors
+```{r }
+# remove this line
+datasource[1,1]<-3
+datasource[10,1]<-3
+datasource[1,5]<-3
+#
+cor.mtest <- function(mat, ...) {
+  mat <- as.matrix(mat)
+  n <- ncol(mat)
+  p.mat<- matrix(NA, n, n)
+  diag(p.mat) <- 0
+  for (i in 1:(n - 1)) {
+    for (j in (i + 1):n) {
+      tmp <- cor.test(mat[, i], mat[, j], ...)
+      p.mat[i, j] <- p.mat[j, i] <- tmp$p.value
+    }
+  }
+  colnames(p.mat) <- rownames(p.mat) <- colnames(mat)
+  p.mat
+}
+
+var_corr <- cor(datasource)
+p.mat <- cor.mtest(var_corr)
+g <- ggcorrplot(var_corr, p.mat = p.mat, hc.order = TRUE,type = "lower",  insig = "blank", tl.cex=6)
+ggplotly(g)
+```
+
+### PCA Analysis
+http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/118-principal-component-analysis-in-r-prcomp-vs-princomp/
+https://rpubs.com/Cristina_Gil/PCA
+
+```{r }
+# Calculamos PCA. prcomp ya se encarga de normalizar y estandarizar los datos a mean=0 y sd=1
+pca.datasource <- prcomp(datasource, scale = TRUE)
+names(pca.datasource)
+dim(pca.datasource$rotation)
+# Visualize eigenvalues. Show the percentage of variances explained by each principal component
+fviz_eig(pca.datasource)
+# Graph of individuals. Individuals with a similar profile are grouped together.
+fviz_pca_ind(pca.datasource,
+             col.ind = "cos2", # Color by the quality of representation
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE     # Avoid text overlapping
+             )
+# Graph of variables. Positive correlated variables point to the same side of the plot. Negative correlated variables point to opposite sides of the graph.
+fviz_pca_var(pca.datasource,
+             col.var = "contrib", # Color by contributions to the PC
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE     # Avoid text overlapping
+             )
+# Biplot of individuals and variables
+fviz_pca_biplot(pca.datasource, repel = TRUE,
+                col.var = "#2E9FDF", # Variables color
+                col.ind = "#696969"  # Individuals color
+                )
+
+```
+
+
+# CLEANING DATA AND CONVERSIONS
+### Removing near zero variance predictors
+NZV <- nearZeroVar(training2)
+
+### Removing predictors with NA predominance
+
+### Filling predictors with mean value in case of some NA
+
+### Categorical variable encoding
+https://towardsdatascience.com/all-about-categorical-variable-encoding-305f3361fd02
+
+# DATA SPLIT IN TRAINING AND TESTING DATA
+inx  <- createDataPartition(datasource$target, p=0.75, list=FALSE)
+testing  <- datasource[-inx, ]
+training <- datasource[ inx, ]
+dim(testing)
+dim(training)
+
+### 
+
+# MODEL GENERATION
+
+
+# PREDICTION MODEL EVALUATION
+
+# APPLYING MODEL TO THE TESTING DATA 
+
+***
+# Recordatorios y notas
+datatable(mtcars, rownames = FALSE, filter="top", options = list(pageLength = 5, scrollX=T) )
+
+***
+# Appendix. Environment used
+```{r} 
+sessionInfo()
+```
+
