@@ -101,6 +101,11 @@ If it makes sense, plot of histogram
 ```{r }
 hist(datasource$V1)
 ```
+Show dots among predictors plotted in paris
+```{r }
+pairs(datasource)
+```
+
 Show unique values to be predicted
 unique(datasource$target)
 
