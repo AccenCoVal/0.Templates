@@ -37,6 +37,7 @@ require(randomForest) || install.packages("randomForest")
 require(knitr) || install.packages("knitr")
 require(plotly) || install.packages("plotly")
 require(factoextra) || install.packages("factoextra")
+require(GGally) || install.packages("GGally")
 
 library(readr)
 library(stringr)
@@ -58,6 +59,7 @@ library(knitr)
 library(DT)
 library(plotly)
 library(factoextra)
+library(GGally)
 ```
 # EXECUTIVE SUMMARY
 
@@ -103,7 +105,7 @@ hist(datasource$V1)
 ```
 Show dots among predictors plotted in paris
 ```{r }
-pairs(datasource)
+ggplotly(ggpairs(datasource))
 ```
 
 Show unique values to be predicted
